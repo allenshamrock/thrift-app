@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=3n49k7)^feq$%9!4#!-hef7q8grb*a-ypw9i56fz$4%!4z@hp'
+SECRET_KEY = os.environ.get('SECRET_KEY','secret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # local app
-    'authentication'
+    'authentication',
+    'mozilla_django_oidc', 
 ]
 
 MIDDLEWARE = [
@@ -72,6 +77,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'thrift_app.wsgi.application'
+
+# Adding 'mozilla_django_oidc' authentication backend
+AUTHENTICATION_BACKENDS = (
+    "core.backends.CustomOIDCAuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",
+)
 
 
 # Database
@@ -129,3 +140,46 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # homepage view 
 LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = "index"
+
+
+# Configuring okta
+
+OKTA_DOMAIN = os.getenv("OKTA_DOMAIN","")
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID","")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET","")
+
+OIDC_RP_SIGN_ALGO = "RS256"
+# The OIDC authorization endpoint
+OIDC_OP_AUTHORIZATION_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/authorize"
+# User's endpoint
+OIDC_OP_USER_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/userinfo")
+# The OIDC JWKS endpoint
+OIDC_OP_JWKS_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/keys"  )
+# The OIDC token revocation endpoint
+OIDC_OP_TOKEN_REVOKE_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/revoke"
+# OIDC_AUTHENTICATION_CALLBACK_URL = "http://localhost:8080/authorization-code/callback"
+
+
+
+OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60  # 1 hour
+
+
+OIDC_STORE_ACCESS_TOKEN = os.getenv(
+    "OIDC_STORE_ACCESS_TOKEN", True
+)  # Store the access token in the OIDC backend
+OIDC_STORE_ID_TOKEN = os.getenv(
+    "OIDC_STORE_ID_TOKEN", True
+)  # Store the ID token in the OIDC backend
+OIDC_STORE_REFRESH_TOKEN = os.getenv(
+    "OIDC_STORE_REFRESH_TOKEN", True
+)  # Store the refresh token in the OIDC backend
+
+OIDC_RP_SCOPES = os.getenv(
+    "OIDC_RP_SCOPES", "openid profile email offline_access"
+)  # The OIDC scopes to request
+
+OIDC_EXEMPT_URLS = [
+    "oidc_authentication_init",
+    "oidc_authentication_callback",
+    "logout",
+]

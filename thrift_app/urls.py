@@ -16,8 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.views.generic.base import TemplateView
+from mozilla_django_oidc import views as oidc_views
+from authentication import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("accounts/", include("django.contrib.auth.urls"))
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("", TemplateView.as_view(template_name='home.html'), name='index'),
+    path(
+        "authorization-code/authenticate/",
+        oidc_views.OIDCAuthenticationRequestView.as_view(),
+        name="oidc_authentication_init",
+    ),
+    path(
+        "authorization-code/callback",
+        oidc_views.OIDCAuthenticationCallbackView.as_view(),
+        name="oidc_authentication_callback",
+    ),
+    
 ]
