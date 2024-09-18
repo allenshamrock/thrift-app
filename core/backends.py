@@ -35,6 +35,7 @@ class CustomOIDCAuthenticationBackend(OIDCAuthenticationBackend):
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": absolutify(self.request, reverse(reverse_url)),
+            
         }
 
         # Get the token

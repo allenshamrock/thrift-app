@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY','secret')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['43aa-197-237-38-104.ngrok-free.app', '127.0.0.1']
 
 
 # Application definition
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # local app
     'authentication',
-    'mozilla_django_oidc', 
+    'mozilla_django_oidc', #load after auth
 ]
 
 MIDDLEWARE = [
@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.OIDCSessionRefreshMiddleware'
 ]
 
 ROOT_URLCONF = 'thrift_app.urls'
@@ -137,16 +138,22 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# homepage view 
+# homepage view
 LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = "index"
 
 
 # Configuring okta
 
-OKTA_DOMAIN = os.getenv("OKTA_DOMAIN","")
-OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID","")
-OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET","")
+OKTA_DOMAIN = os.getenv("OKTA_DOMAIN", "")
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID", "")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET", "")
+
+# Define the OIDC redirect URI here
+OIDC_REDIRECT_URI = os.getenv(
+    "OIDC_REDIRECT_URI", "https: // ef0c-197-237-38-104.ngrok-free.app/authorization-code/callback"
+    
+)
 
 OIDC_RP_SIGN_ALGO = "RS256"
 # The OIDC authorization endpoint
@@ -154,11 +161,9 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/autho
 # User's endpoint
 OIDC_OP_USER_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/userinfo")
 # The OIDC JWKS endpoint
-OIDC_OP_JWKS_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/keys"  )
+OIDC_OP_JWKS_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/keys")
 # The OIDC token revocation endpoint
 OIDC_OP_TOKEN_REVOKE_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/revoke"
-# OIDC_AUTHENTICATION_CALLBACK_URL = "http://localhost:8080/authorization-code/callback"
-
 
 
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60  # 1 hour
