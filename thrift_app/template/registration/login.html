@@ -1,9 +1,0 @@
-<h2>Log In</h2>
-<form method="POST" action="">
-  {%csrf_token%} {{form.as_p}}
-  <button type="submit">Log In</button>
-  <br />
-  <a href="{% url 'oidc_authentication_init' %}">
-    <button type="button">Log In with Okta</button>
-  </a>
-</form>

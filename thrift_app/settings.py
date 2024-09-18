@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from decouple import config
 
-load_dotenv()
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['43aa-197-237-38-104.ngrok-free.app', '127.0.0.1']
+ALLOWED_HOSTS = ['36ef-197-237-38-104.ngrok-free.app', 'localhost','127.0.0.1']
 
 
 # Application definition
@@ -43,8 +43,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # local app
     'authentication',
-    'mozilla_django_oidc', #load after auth
+    'social_django'#3rd party app
+   
 ]
+
+SOCIAL_AUTH_TRAILING_SLASH = False
+SOCIAL_AUTH_AUTH0_DOMAIN = config('APP_DOMAIN')
+SOCIAL_AUTH_AUTH0_KEY = config('APP_CLIENT_ID')
+SOCIAL_AUTH_AUTH0_SECRET = config('APP_CLIENT_SECRET')
+
+
+SOCIAL_AUTH_AUTH0_SCOPE = [
+    'openid',
+    'profile',
+    'email'
+]
+
+AUTHENTICATION_BACKENDS = {
+    'social_core.backends.auth0.Auth0OAuth2',
+    'django.contrib.auth.backends.ModelBackend' #Default django backend
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,7 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.OIDCSessionRefreshMiddleware'
+   
 ]
 
 ROOT_URLCONF = 'thrift_app.urls'
@@ -63,7 +81,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR.joinpath("thrift_app/template")
+            BASE_DIR.joinpath("authentication/template")
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -78,13 +96,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'thrift_app.wsgi.application'
-
-# Adding 'mozilla_django_oidc' authentication backend
-AUTHENTICATION_BACKENDS = (
-    "core.backends.CustomOIDCAuthenticationBackend",
-    "django.contrib.auth.backends.ModelBackend",
-)
-
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -139,52 +150,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # homepage view
-LOGIN_REDIRECT_URL = "index"
-LOGOUT_REDIRECT_URL = "index"
+LOGIN_URL = '/login/auth0'
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 
-# Configuring okta
-
-OKTA_DOMAIN = os.getenv("OKTA_DOMAIN", "")
-OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID", "")
-OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET", "")
-
-# Define the OIDC redirect URI here
-OIDC_REDIRECT_URI = os.getenv(
-    "OIDC_REDIRECT_URI", "https: // ef0c-197-237-38-104.ngrok-free.app/authorization-code/callback"
-    
-)
-
-OIDC_RP_SIGN_ALGO = "RS256"
-# The OIDC authorization endpoint
-OIDC_OP_AUTHORIZATION_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/authorize"
-# User's endpoint
-OIDC_OP_USER_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/userinfo")
-# The OIDC JWKS endpoint
-OIDC_OP_JWKS_ENDPOINT = (f"https://{OKTA_DOMAIN}/oauth2/default/v1/keys")
-# The OIDC token revocation endpoint
-OIDC_OP_TOKEN_REVOKE_ENDPOINT = f"https://{OKTA_DOMAIN}/oauth2/default/v1/revoke"
 
 
-OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60  # 1 hour
 
 
-OIDC_STORE_ACCESS_TOKEN = os.getenv(
-    "OIDC_STORE_ACCESS_TOKEN", True
-)  # Store the access token in the OIDC backend
-OIDC_STORE_ID_TOKEN = os.getenv(
-    "OIDC_STORE_ID_TOKEN", True
-)  # Store the ID token in the OIDC backend
-OIDC_STORE_REFRESH_TOKEN = os.getenv(
-    "OIDC_STORE_REFRESH_TOKEN", True
-)  # Store the refresh token in the OIDC backend
-
-OIDC_RP_SCOPES = os.getenv(
-    "OIDC_RP_SCOPES", "openid profile email offline_access"
-)  # The OIDC scopes to request
-
-OIDC_EXEMPT_URLS = [
-    "oidc_authentication_init",
-    "oidc_authentication_callback",
-    "logout",
-]

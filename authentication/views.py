@@ -1,39 +1,42 @@
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import View
-from django.contrib.auth import logout
+from django.shortcuts import render
+from django.contrib.auth import logout as django_logout
 from django.http import HttpResponseRedirect
+from decouple import config
+import json
 
-from django.contrib.auth.views import LogoutView
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
-from core.oidc_logout import oidc_logout
+# Create your views here.
 
-
-class CustomLoginView(View):
-    def get(self, request):
-        user = User.objects.get(username="admin")
-        login(request, user)
-        return redirect(reverse("home"))
+def index(request):
+    return render(request, 'index.html')
 
 
-class LogoutViewSet(LogoutView):
-    """
-    API endpoint that handles user logout
-    """
+def profile(request):
+    user = request.user
 
-    @method_decorator(never_cache)
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Override the dispatch method to add the okta logout functionality
-        """
+    auth0_user = user.social_auth.get(provider='auth0')
 
-        oidc_logout(request)  # This is the function that does the oidc logout
-        logout(request)  # This is the django logout
-        redirect_to = self.get_success_url()
-        if redirect_to != request.get_full_path():
-            # Redirect to target page once the session has been cleared.
-            return HttpResponseRedirect(redirect_to)
-        return super().dispatch(request, *args, **kwargs)
+    user_data = {
+        'user_id': auth0_user.uid,
+        'name': user.first_name,
+        'picture': auth0_user.extra_data['picture']
+    }
+
+    context = {
+        'user_data': json.dumps(user_data, indent=4),
+        'auth0_user': auth0_user
+    }
+
+    return render(request, 'profile.html', context)
+
+# logout
+# https://{domain}/v2/logout?client_id={client_id}&returnTo={return_to}
+
+
+def logout(request):
+    django_logout(request)
+
+    domain = config('APP_DOMAIN')
+    client_id = config('APP_CLIENT_ID')
+    return_to = 'http://localhost:8000/'
+
+    return HttpResponseRedirect(f"https://{domain}/v2/logout?client_id={client_id}&returnTo={return_to}")
