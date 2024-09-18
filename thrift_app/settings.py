@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # local app
     'authentication',
-    'social_django'#3rd party app
+    'social_django',#3rd party app
+
+    'rest_framework'
    
 ]
 
