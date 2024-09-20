@@ -10,7 +10,7 @@ load_dotenv()
 # Africastalking credentials
 username = os.getenv('USERNAME')
 api_key = os.getenv('SMS_API_KEY')
-sender_id = os.getenv('SENDER_ID')
+# sender_id = os.getenv('SENDER_ID')
 
 # Initialize Africastalking
 africastalking.initialize(username, api_key)
@@ -21,9 +21,11 @@ sms = africastalking.SMS
 def send_sms_on_order(order_instance):
     customers = Customer.objects.all()
     for customer in customers:
-        order_message = f"Hello {customer.username}, a new order has been placed: {order_instance.item}. Please check your account."
+        order_message = f"Hello {customer.username}, a new order has been placed: {order_instance.item} at {order_instance.amount}. Please check your account."
         response = sms.send(order_message, [str(customer.phone_number)])
         print(response)
+        for recipient in response['SMSMessageData']['Recipients']:
+            print(f"Phone: {recipient['number']}, Status: {recipient['status']}, Cost: {recipient['cost']}, Error: {recipient.get('errorMessage', 'None')}")
 
 # Signal to trigger SMS sending after order is saved
 @receiver(post_save, sender=Order)
