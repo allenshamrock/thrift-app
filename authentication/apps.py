@@ -6,5 +6,5 @@ class AuthenticationConfig(AppConfig):
     name = 'authentication'
 
     def ready(self):
-        from . import updater
-        updater.start()
+        from . import message_update
+        
