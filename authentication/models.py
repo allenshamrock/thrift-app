@@ -1,6 +1,7 @@
 from django.db import models
 import random
 import string
+from django.core.exceptions import ValidationError
 
 class Customer(models.Model):
     username = models.CharField(
@@ -24,5 +25,10 @@ class Order(models.Model):
     time = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, default=1)
 
+    def clean(self):
+        if self.amount <= 0:
+            raise ValidationError(
+                {'amount': 'Amount must be a positive integer'})
+            
     def __str__(self) -> str:
         return self.item
