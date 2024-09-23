@@ -10,6 +10,8 @@ Thrift App is a simple hypothetical store management system that allows you to m
 
 3.SMS notifications sent to customers when an order is created, using the Africa's Talking SMS gateway.
 
+4.CI/CD pipeline integration with Docker and Jenkins for automated testing, building, and deployment.
+
 Features
 
 1.Customers and Orders Database
@@ -37,6 +39,12 @@ Features
 .  When a new order is placed, an SMS notification is sent to the customer using the Africa's Talking SMS gateway.
 
 .  This feature enhances user engagement by keeping customers informed of their orders in real-time.
+
+5.Continuous Integration (CI) and Continuous Deployment (CD)
+
+. CI/CD pipeline is set up using Docker for containerization and Jenkins for automated testing, building, and  deployment.
+
+. This ensures a streamlined development workflow, allowing for automated deployments to production environments with minimal manual intervention.
 
 Project Setup
 
@@ -138,3 +146,7 @@ Technologies Used
 . Auth0: OIDC authentication for secure user login.
 
 . Africa's Talking: SMS gateway integration for sending SMS notifications.
+
+. Docker: For containerizing the app and ensuring consistent environment across development and production.
+
+. Jenkins: For setting up automated CI/CD workflows.
