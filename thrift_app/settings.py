@@ -29,7 +29,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['36ef-197-237-38-104.ngrok-free.app', 'localhost','127.0.0.1']
+ALLOWED_HOSTS = ['36ef-197-237-38-104.ngrok-free.app',
+                 'https://thrift-app-django.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
