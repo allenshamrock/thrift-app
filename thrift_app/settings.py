@@ -56,6 +56,10 @@ SOCIAL_AUTH_AUTH0_KEY = config('APP_CLIENT_ID')
 SOCIAL_AUTH_AUTH0_SECRET = config('APP_CLIENT_SECRET')
 
 
+SMS_API_KEY = config('SMS_API_KEY')
+USERNAME = config('USERNAME')
+
+
 SOCIAL_AUTH_AUTH0_SCOPE = [
     'openid',
     'profile',
